@@ -1,0 +1,51 @@
+* {
+	margin: 0px;
+}
+
+body {
+	background-image:url('images/back_hex.jpg');
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	font-family: Verdana, Geneva, sans-serif;
+}
+
+#wrapper {
+	width: 1000px;
+	height: auto;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 30px;
+	padding: 15px 10px;
+	border: 1px solid #aaaaaa;
+	background: white;
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+}
+
+#header {
+	position: relative;
+	width: 100%;
+	margin-bottom: 15px;
+	padding-bottom: 10px;
+	border-bottom: 1px dashed #aaaaaa;
+}
+
+#content {
+	position: relative;
+	width: 100%;
+}
+
+#footer {
+	margin-top: 15px;
+	padding: 10px 0;
+	border-top: 1px dashed #aaaaaa;
+	position: relative;
+	width: 100%;
+	text-align: center;
+}
+
+canvas {
+	border: 0;
+	background-color: white;
+}

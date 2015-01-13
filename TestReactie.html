@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Joc testare reactie</title>
+	<link rel="stylesheet" href="style.css" />
+	<script src="js/jquery-1.11.2.min.js"></script>
+</head>
+<body>
+	<div id="wrapper">
+		<div id="header">
+			<img src="images/logo_logo.png" border="0" />
+		</div>
+		<div id="content">
+			<canvas id="canvas" width="1000" height="600">
+				
+			</canvas>
+
+			<div id="results">
+				<h3>Rezultatele mele: </h3>
+				<div id="myResults">
+
+				</div>
+			</div>
+		</div>
+		<div id="footer">
+			Timp de reactie - &copy; 2015 Matesica Iulian-Razvan
+		</div>
+	</div>
+
+	<script src="js/js.js"></script>
+	<script>
+
+	(function() {
+		new TimpReactie($("#canvas"), $("#myResults"));
+	})();
+
+	</script>
+</body>
+</html>
