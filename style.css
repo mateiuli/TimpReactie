@@ -34,6 +34,11 @@ body {
 #content {
 	position: relative;
 	width: 100%;
+	text-align: center;
+}
+
+#content #results {
+	text-align: left;
 }
 
 #footer {

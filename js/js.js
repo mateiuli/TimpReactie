@@ -123,10 +123,10 @@ TimpReactie.prototype.gameScreen = function() {
 		$this.canvas.drawImage(imageBg1, 0, 0);		
 
 		// afisez textul
-		$this.canvas.font = "bold 32px Arial";
+		$this.canvas.font = "bold 28px Arial";
 		$this.canvas.fillStyle = "#0048ab";
 		$this.canvas.textAlign = "center";
-		$this.canvas.fillText("1. Apasa SPACE cand patratul se coloreaza", $this.canvasElement.width() / 2, 100);	
+		$this.canvas.fillText("1. Apasa SPACE cand patratul se coloreaza", $this.canvasElement.width() / 2, 50);	
 		$this.gameScreenNewTry();		
 	};
 }
@@ -134,10 +134,10 @@ TimpReactie.prototype.gameScreen = function() {
 TimpReactie.prototype.gameScreenNewTry = function() {
 	$this = this;
 	// patratul
-	var boxWidth = 600,
-		boxHeight = 300,
+	var boxWidth = 450,
+		boxHeight = 225,
 		boxX = $this.canvasElement.width() / 2 - boxWidth / 2,
-		boxY = 200;
+		boxY = 120;
 
 	var colors = [
 		"red", "cyan", "blue", "magenta", "green", "orange", "orangered", "deeppink", 
@@ -173,7 +173,7 @@ TimpReactie.prototype.printTimeDiff = function() {
 	$this.canvas.font = "bold 24px Arial";
 	$this.canvas.fillStyle = "#0048ab";
 	$this.canvas.textAlign = "center";
-	$this.canvas.fillText("Timp: " + diff + "ms", $this.canvasElement.width() / 2, 350);
+	$this.canvas.fillText("Timp: " + diff + "ms", $this.canvasElement.width() / 2, 235);
 
 	$this.resultsElement.append($this.try_counter + ": " + diff + " ms<br />");
 }
