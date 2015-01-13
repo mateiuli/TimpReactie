@@ -16,6 +16,7 @@ function TimpReactie(canvasE, resultsE) {
 	this.try_counter 	= 0;
 	this.max_tries 		= 3;
 	this.diffs			= [];
+	this.results_printed = false;
 
 	this.setup();
 	this.startScreen();
@@ -58,13 +59,14 @@ TimpReactie.prototype.setup = function() {
 				// astept sa apese space
 				if(event.which == 32 && $this.time_start != null) {
 					$this.time_end = new Date();
-					$this.printTimeDiff();
+					
 
-					if($this.try_counter >= $this.max_tries) {
-						alert("gata!");
+					if($this.try_counter >= $this.max_tries && !$this.results_printed) {
+						$this.printTimeDiff();
 						$this.printResults();
 					}
-					else {
+					else if($this.try_counter < $this.max_tries) {
+						$this.printTimeDiff();
 						$this.gameScreenNewTry();
 					}
 				}
@@ -177,6 +179,8 @@ TimpReactie.prototype.printTimeDiff = function() {
 }
 
 TimpReactie.prototype.printResults = function() {
+	$this = this;
+	$this.results_printed = true;
 	var media = 0;
 	for(i = 0; i < this.diffs.length; i++) {
 		media += this.diffs[i];
