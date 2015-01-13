@@ -1,3 +1,14 @@
+Array.prototype.shuffle = function() {
+	// Fisher-Yates shuffle
+	var m = this.length, t, i;
+	while (m) {
+		i = Math.floor(Math.random() * m--);
+		t = this[m];
+		this[m] = this[i];
+		this[i] = t;
+	}
+};
+
 function TimpReactie(canvasE, resultsE) {
 	this.canvasElement = canvasE;
 	this.resultsElement = resultsE;
@@ -5,6 +16,7 @@ function TimpReactie(canvasE, resultsE) {
 	this.states = [
 		'start_screen',
 		'game_screen',
+		'color_match', 
 		'end_screen',
 	];
 	this.currentState = 0;
@@ -18,16 +30,27 @@ function TimpReactie(canvasE, resultsE) {
 	this.diffs			= [];
 	this.results_printed = false;
 	this.space_pressed = false;
+	this.enter_pressed = false;
+	this.color_match_started = false;
+	this.medii          = [];
+	this.colorID        = -1;
+	this.nameID			= -1;
+	this.time_penalty   = 2000;
+	this.correct_matches = 0;
+	this.colors1 = [ "deeppink", "orange", "purple", "deepskyblue", "gold", "crimson", 
+					"forestgreen", "lawngreen", "cornflowerblue" ];
+	this.colors2 = ["crimson", "deepskyblue", "gold", "orangered", "forestgreen", "black", "purple"];
+	this.names = ["ROSU", "ALBASTRU", "GALBEN", "PORTOCALIU", "VERDE", "NEGRU", "VIOLET"];
 
 	this.setup();
 	this.startScreen();
-	console.log(this.canvas);
+	//console.log(this.canvas);
 	// this.events.click.call(this);	
 }
 
 TimpReactie.prototype.clear = function() {
 	this.canvas.translate(0, 0);
-	this.canvas.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+	this.canvas.clearRect(0, 0, this.canvasElement.width(), this.canvasElement.height());
 }
 
 TimpReactie.prototype.nextState = function() {
@@ -36,11 +59,14 @@ TimpReactie.prototype.nextState = function() {
 		this.gameScreen();
 	}
 	else if(this.states[this.currentState] == 'game_screen') {
-		// go to end_screen
+		this.colorMatch();
+	}
+	else if(this.states[this.currentState] == 'color_match') {
+		// go to end game
 	}
 
 	this.currentState = (this.currentState + 1) % this.states.length;
-	console.log(this.currentState);
+	//console.log(this.currentState);
 }
 
 TimpReactie.prototype.setup = function() {
@@ -54,6 +80,9 @@ TimpReactie.prototype.setup = function() {
 	    		if(event.which == 13) {
 					$this.nextState();
 				}
+			}
+			else if ($this.currentState == 1 && $this.try_counter >= $this.max_tries && event.which == 13) {
+				$this.nextState();
 			}
 			// modul de joc
 			else if($this.currentState == 1) {
@@ -72,7 +101,32 @@ TimpReactie.prototype.setup = function() {
 					}
 				}
 			}
-	    
+	    	else if($this.currentState == 2 && !$this.color_match_started && event.which == 13) {
+	    		$this.color_match_started = true;
+	    		$this.colorMatchTry();
+	    	}
+	    	else if($this.currentState == 2) {
+	    		if(event.which == 13 || event.which == 32 && $this.time_start != null && !$this.space_pressed && !$this.enter_pressed) {
+	    			$this.time_end = new Date();
+					$this.space_pressed = true;
+					$this.enter_pressed = true;
+
+					if($this.try_counter >= $this.max_tries && !$this.results_printed) {
+						if(($this.colorID == $this.nameID && event.which == 13) || ($this.colorID != $this.nameID && event.which == 32))  
+							$this.printTimeDiff(false);
+						else if(($this.colorID == $this.nameID && event.which == 32) || ($this.colorID != $this.nameID && event.which == 13))
+							$this.printTimeDiff(true);
+						$this.printResults(true);
+					}
+					else if($this.try_counter < $this.max_tries) {
+						if(($this.colorID == $this.nameID && event.which == 13) || ($this.colorID != $this.nameID && event.which == 32))  
+							$this.printTimeDiff(false);
+						else if(($this.colorID == $this.nameID && event.which == 32) || ($this.colorID != $this.nameID && event.which == 13))
+							$this.printTimeDiff(true);
+						$this.colorMatchTry();
+					}
+	    		}
+	    	}
 		}
 	});
 }
@@ -101,7 +155,7 @@ TimpReactie.prototype.startScreen = function() {
 	            on = !on;  
 
 	            if($this.currentState != 0) {
-	            	console.log($this.currentState);
+	            	//console.log($this.currentState);
 	            	clearInterval(timer);
 	            }
 
@@ -110,24 +164,22 @@ TimpReactie.prototype.startScreen = function() {
 	};
 }
 
-
 TimpReactie.prototype.gameScreen = function() {
 	this.clear();
-	var imageBg1 = new Image(),
-		imageBg2 = new Image();
+	this.colors1.shuffle();
+	var imageBg1 = new Image();
 
 	var $this = this;
 	imageBg1.src = 'images/back_game_1.jpg';
-	imageBg2.src = 'images/back_game_2.jpg';
 	
 	imageBg1.onload = function() {
 		$this.canvas.drawImage(imageBg1, 0, 0);		
 
 		// afisez textul
-		$this.canvas.font = "bold 28px Arial";
-		$this.canvas.fillStyle = "#0048ab";
+		$this.canvas.font = "bold 28px Comic Sans MS";
+		$this.canvas.fillStyle = "aliceblue";
 		$this.canvas.textAlign = "center";
-		$this.canvas.fillText("Apasa SPACE cand patratul se coloreaza", $this.canvasElement.width() / 2, 50);	
+		$this.canvas.fillText("Apasa SPACE cand cercul se coloreaza", $this.canvasElement.width() / 2, 50);	
 		$this.canvas.fillText("(5 incercari)", $this.canvasElement.width() / 2, 85);	
 		$this.gameScreenNewTry();		
 	};
@@ -135,53 +187,107 @@ TimpReactie.prototype.gameScreen = function() {
 
 TimpReactie.prototype.gameScreenNewTry = function() {
 	$this = this;
-	// patratul
-	var boxWidth = 450,
-		boxHeight = 225,
-		boxX = $this.canvasElement.width() / 2 - boxWidth / 2,
-		boxY = 120;
 
-	var colors = [
-		"red", "cyan", "blue", "magenta", "green", "orange", "orangered", "deeppink", 
-		"purple", "teal", "turquoise", "yellow", "gold", "royalblue", "navy", "lavender", "gray"
-	];
+	// cercul
+	var circleRadius = 100,
+		circleX = $this.canvasElement.width() / 2,
+		circleY = $this.canvasElement.height() / 2;
 
 	var randomNumber = function(a, b) {
 		return Math.floor((Math.random() * b) + a);
 	}
 
-	var randomColor = function() {
-		return colors[randomNumber(0, colors.length)];
+	var nextColor = function() {
+		return $this.colors1[$this.try_counter];
 	};
 
-	
 	$this.try_counter++;
 
-	// patratul gol
-	$this.canvas.strokeRect(boxX, boxY, boxWidth, boxHeight);
-
-	setTimeout(function() { 
-		$this.canvas.fillStyle = randomColor();
-		$this.canvas.fillRect(boxX, boxY, boxWidth, boxHeight); 
+	setTimeout(function() {
+		$this.canvas.fillStyle = nextColor();
+		$this.canvas.beginPath();
+		$this.canvas.arc(circleX, circleY, circleRadius, 0, 2 * Math.PI);
+		$this.canvas.fill(); 
 		$this.time_start = new Date(); 
 		$this.space_pressed = false;
-	}, randomNumber(1000, 3001));
+	}, randomNumber(1500, 2001));
 }
 
-TimpReactie.prototype.printTimeDiff = function() {
+TimpReactie.prototype.colorMatch = function() {
+	// Clear Data
+	this.clear();
+	this.diffs = [];
+	this.enter_pressed = false;
+	this.space_pressed = false;
+	this.try_counter = 0;
+	this.results_printed = false;
+	$("#myResults").empty();
+
+	// afisez textul
+	this.canvas.font = "bold 18px Comic Sans MS";
+	this.canvas.fillStyle = "black";
+	this.canvas.textAlign = "center";
+	this.canvas.fillText("Apasa SPACE daca culoarea corespunde cu numele, altfel apasa ENTER.", this.canvasElement.width() / 2, 50);	
+	this.canvas.fillText("Pentru fiecare greseala vei fi penalizat cu " + $this.time_penalty + " ms!", this.canvasElement.width() / 2, 85);
+	this.canvas.fillText("Apasa ENTER ca sa incepi jocul.", this.canvasElement.width() / 2, 120);
+}
+
+TimpReactie.prototype.colorMatchTry = function() {
+	// Special Clear for Text
+	this.canvas.fillStyle = "white";
+	this.canvas.fillRect(0, 0, this.canvasElement.width(), this.canvasElement.height());
+	
+	var randomNumber = function(a, b) {
+		return Math.floor((Math.random() * b) + a);
+	}
+
+	this.colorID = randomNumber(0, this.colors2.length);
+	this.nameID = randomNumber(0, this.names.length);
+
+	this.try_counter++;
+
+	$this = this;
+	setTimeout(function() {
+		$this.canvas.font = "bold 34px Comic Sans MS";
+		
+		$this.canvas.fillStyle = $this.colors2[$this.colorID];
+		// Mareste probabilitatea de a avea un match
+		if(randomNumber(0, 101) < 40) {
+			$this.nameID = $this.colorID;
+		}
+		console.log($this.colorID + " " + $this.nameID);
+		$this.canvas.textAlign = "center";
+		$this.canvas.fillText($this.names[$this.nameID], $this.canvasElement.width() / 2, $this.canvasElement.height() / 2);
+		$this.time_start = new Date(); 
+		$this.space_pressed = false;
+		$this.enter_pressed = false;
+	}, randomNumber(1000, 2001));
+}
+
+TimpReactie.prototype.printTimeDiff = function(isColorMatch) {
 	$this = this;
 	var diff = $this.time_end - $this.time_start;
-	$this.diffs.push(diff);
-
 	$this.canvas.font = "bold 24px Arial";
-	$this.canvas.fillStyle = "#0048ab";
 	$this.canvas.textAlign = "center";
-	$this.canvas.fillText("Timp: " + diff + "ms", $this.canvasElement.width() / 2, 235);
-
-	$this.resultsElement.append($this.try_counter + ": " + diff + " ms<br />");
+	
+	if(typeof(isColorMatch)==='undefined') {
+		$this.diffs.push(diff);
+		$this.canvas.fillStyle = "WhiteSmoke";
+		$this.canvas.fillText("Timp: " + diff + " ms", $this.canvasElement.width() / 2, 220);
+		$this.resultsElement.append($this.try_counter + ": " + diff + " ms<br />");
+	}
+	else if (isColorMatch) {
+		$this.correct_matches++;
+		$this.diffs.push(diff);
+		$this.resultsElement.append($this.try_counter + ": " + diff + " ms <span style='color:green;'>[CORECT]</span><br />");
+	}
+	else {
+		$this.diffs.push($this.time_penalty);
+		$this.resultsElement.append($this.try_counter + ": " + $this.time_penalty + " ms <span style='color:red;'>[GRESIT]</span><br />");
+	}
 }
 
-TimpReactie.prototype.printResults = function() {
+TimpReactie.prototype.printResults = function(isColorMatch) {
 	$this = this;
 	$this.results_printed = true;
 	var media = 0;
@@ -190,8 +296,20 @@ TimpReactie.prototype.printResults = function() {
 	}
 
 	media = media / this.diffs.length;
+	$this.medii.push(media);
 	$this.resultsElement.append("----<br />");
-	$this.resultsElement.append("Media: " + media + " ms<br />");
+	
+	if(typeof(isColorMatch) === typeof(true)) {
+		$this.canvas.fillStyle = "DarkBlue";
+		$this.canvas.fillText("Ai avut " + $this.correct_matches + " potriviri corecte!", $this.canvasElement.width() / 2, 300);
+		$this.resultsElement.append("Media 1: " + $this.medii[0] + " ms<br />");
+		$this.resultsElement.append("Media 2: " + $this.medii[1] + " ms<br />");
+	}
+	else {
+		$this.canvas.fillStyle = "white";
+		$this.canvas.fillText("Apasa ENTER ca sa treci la urmatorul nivel.", $this.canvasElement.width() / 2, 370);
+		$this.resultsElement.append("Media: " + media + " ms<br />");
+	}
 }
 
 // DOM Manipulations
