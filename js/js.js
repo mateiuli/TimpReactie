@@ -14,9 +14,10 @@ function TimpReactie(canvasE, resultsE) {
 	this.time_start 	= null;
 	this.time_end		= null;
 	this.try_counter 	= 0;
-	this.max_tries 		= 3;
+	this.max_tries 		= 5;
 	this.diffs			= [];
 	this.results_printed = false;
+	this.space_pressed = false;
 
 	this.setup();
 	this.startScreen();
@@ -57,9 +58,9 @@ TimpReactie.prototype.setup = function() {
 			// modul de joc
 			else if($this.currentState == 1) {
 				// astept sa apese space
-				if(event.which == 32 && $this.time_start != null) {
+				if(event.which == 32 && $this.time_start != null && !$this.space_pressed) {
 					$this.time_end = new Date();
-					
+					$this.space_pressed = true;
 
 					if($this.try_counter >= $this.max_tries && !$this.results_printed) {
 						$this.printTimeDiff();
@@ -126,7 +127,8 @@ TimpReactie.prototype.gameScreen = function() {
 		$this.canvas.font = "bold 28px Arial";
 		$this.canvas.fillStyle = "#0048ab";
 		$this.canvas.textAlign = "center";
-		$this.canvas.fillText("1. Apasa SPACE cand patratul se coloreaza", $this.canvasElement.width() / 2, 50);	
+		$this.canvas.fillText("Apasa SPACE cand patratul se coloreaza", $this.canvasElement.width() / 2, 50);	
+		$this.canvas.fillText("(5 incercari)", $this.canvasElement.width() / 2, 85);	
 		$this.gameScreenNewTry();		
 	};
 }
@@ -162,6 +164,7 @@ TimpReactie.prototype.gameScreenNewTry = function() {
 		$this.canvas.fillStyle = randomColor();
 		$this.canvas.fillRect(boxX, boxY, boxWidth, boxHeight); 
 		$this.time_start = new Date(); 
+		$this.space_pressed = false;
 	}, randomNumber(1000, 3001));
 }
 
